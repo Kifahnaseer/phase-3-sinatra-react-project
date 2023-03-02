@@ -3,7 +3,7 @@ class ApplicationController < Sinatra::Base
   
   # Add your routes here
   get "/tasks" do
-    {tasks =Task.all }
+    tasks =Task.all
     tasks.to_json
   end
 
