@@ -4,9 +4,9 @@ class CreateTasks < ActiveRecord::Migration[6.1]
     create_table :tasks do |t|
       t.string :name
       t.text :description
-      t.date :date_to_complete
-      t.boolean :follow_up
-      t.integer :id_of_user
+      t.date :due_date
+      t.boolean :status
+      t.integer :user_id
       
     end
   end

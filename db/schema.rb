@@ -15,9 +15,9 @@ ActiveRecord::Schema.define(version: 2023_03_02_125827) do
   create_table "tasks", force: :cascade do |t|
     t.string "name"
     t.text "description"
-    t.date "date_to_complete"
-    t.boolean "follow_up"
-    t.integer "id_of_user"
+    t.date "due_date"
+    t.boolean "status"
+    t.integer "user_id"
   end
 
   create_table "users", force: :cascade do |t|

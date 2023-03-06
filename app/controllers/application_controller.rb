@@ -32,8 +32,45 @@ class ApplicationController < Sinatra::Base
     tasks.to_json
   end
 
-  get '/login' do
-    erb :login
-  end
+  post "/login" do
+    user = User.where(["username=? and password=?", params[:username], params[:password]])[0]
 
+    if (user.nil?)
+      status 403
+      {error: "Wrong email or password"}.to_json
+    else
+      status 200
+      session[:user_id] = user.id
+      user.to_json
+    end
+
+    get "/users" do
+      begin
+        # authorized
+        status 200
+        User.all.to_json(except: [:created_at, :updated_at], include: [:projects])
+      rescue ActiveRecord::RecordNotFound => e
+        status 401
+        {error: "Unauthorized"}.to_json
+      end
+    end
+  
+    get "/users/:id" do
+      begin
+        # authorized
+        user = User.find_by(id: params[:id])
+  
+        if(user.nil?)
+          status 404
+          {error: "User not found"}.to_json
+        else
+          status 200
+          user.to_json(include: [:projects])
+        end
+      rescue ActiveRecord::RecordNotFound => e
+        status 401
+        {error: "Unauthorized"}.to_json
+      end
+    end
+    
 end
