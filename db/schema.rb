@@ -14,16 +14,15 @@ ActiveRecord::Schema.define(version: 2023_03_02_125827) do
 
   create_table "tasks", force: :cascade do |t|
     t.string "name"
-    t.text "description"
-    t.date "due_date"
-    t.boolean "status"
+    t.string "description"
+    t.datetime "due"
+    t.string "status"
     t.integer "user_id"
-    t.date "date"
   end
 
   create_table "users", force: :cascade do |t|
     t.string "name"
-    t.text "email"
+    t.string "email"
     t.string "password"
   end
 
