@@ -2,77 +2,60 @@ class ApplicationController < Sinatra::Base
   set :default_content_type, 'application/json'
   
   # Add your routes here
-  get "/tasks" do
-    tasks =Task.all
-    tasks.to_json
+
+  get '/' do
+    task = Task.all
+    task.to_json
+  end
+  get '/users' do 
+    user = User.all
+    user.to_json
+  end
+  get "/user/tasks/:id" do
+    task = User.find(params[:id]).tasks
+    task.to_json
+  end
+  get "/user/tasks/:id/:date" do
+    # task = User.find(params[:id]).tasks
+    task = Task.where(date: params[:date], user_id: params[:id]).to_json
+    # puts params[:date]
+    task.to_json
+  end
+  get "/tasks/:id" do
+    task = Task.find(params[:id])
+    task.to_json
+  end
+  get "/user/:id/tasks/:status" do
+  #   task = User.find(params[:id])
+    task = Task.where(status: params[:status], user_id: params[:id]).to_json
+    task.to_json
   end
 
-  post '/tasks' do
-    tasks = Task.create(
-      task_name: params[:task_name],
+  patch "/tasks/:id" do
+    task = Task.find(params[:id])
+    task.update(
+      status: params[:status]
+    )
+    task.to_json
+  end
+  post "/tasks" do
+    task = Task.create(
+      name: params[:name],
       description: params[:description],
+      status: params[:status],
+      user_id: params[:user_id],
       due_date: params[:due_date],
-      status: params[:status => "Complete"] || false
+      date: params[:date]
     )
-    tasks.to_json
+    task.to_json
   end
-
-  patch '/tasks/:id' do
-    tasks = Task.find(params[:id])
-    tasks.update(
-      description: params[:description],
-      due_date: params[:due_date]
+  post '/login' do 
+    user = User.find_by(
+      email: params[:email],
+      password: params[:password]
     )
-    tasks.to_json
+    user.to_json
   end
 
-  delete '/tasks/:id' do
-    tasks = Task.find(params[:task_name])
-    tasks.destroy
-    tasks.to_json
-  end
 
-  post "/login" do
-    user = User.where(["username=? and password=?", params[:username], params[:password]])[0]
-
-    if (user.nil?)
-      status 403
-      {error: "Wrong email or password"}.to_json
-    else
-      status 200
-      session[:user_id] = user.id
-      user.to_json
-    end
-  end
-
-    get "/users" do
-      begin
-        # authorized
-        status 200
-        User.all.to_json(except: [:created_at, :updated_at], include: [:projects])
-      rescue ActiveRecord::RecordNotFound => e
-        status 401
-        {error: "Unauthorized"}.to_json
-      end
-    end
-  
-    get "/users/:id" do
-      begin
-        # authorized
-        user = User.find_by(id: params[:id])
-  
-        if(user.nil?)
-          status 404
-          {error: "User not found"}.to_json
-        else
-          status 200
-          user.to_json(include: [:projects])
-        end
-      rescue ActiveRecord::RecordNotFound => e
-        status 401
-        {error: "Unauthorized"}.to_json
-      end
-    end
-    
 end
-
