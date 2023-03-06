@@ -5,10 +5,8 @@ puts "🌱 Seeding spices..."
     user = User.create(
       name: Faker::Name.name,
       email: Faker::Internet.email,
-      password: "password"
-    )
+      password: Faker::Internet.password,    )
 end
 
+
 puts "✅ Done seeding!"
-
-
