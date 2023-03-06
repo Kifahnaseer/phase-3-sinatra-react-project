@@ -43,6 +43,7 @@ class ApplicationController < Sinatra::Base
       session[:user_id] = user.id
       user.to_json
     end
+  end
 
     get "/users" do
       begin
@@ -74,3 +75,4 @@ class ApplicationController < Sinatra::Base
     end
     
 end
+
