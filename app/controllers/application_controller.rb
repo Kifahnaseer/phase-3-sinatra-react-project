@@ -1,61 +1,90 @@
-class ApplicationController < Sinatra::Base
-  set :default_content_type, 'application/json'
-  
-  # Add your routes here
 
-  get '/' do
-    task = Task.all
+class ApplicationController < Sinatra::Base
+  set :default_content_type, "application/json"
+
+  configure do
+    enable :cross_origin
+  end
+
+  before do
+    response.headers['Access-Control-Allow-Origin'] = '*'
+  end
+
+  options "*" do
+    response.headers["Access-Control-Allow-Methods"] = "GET, PATCH, PUT, POST, DELETE"
+    response.headers["Access-Control-Allow-Headers"] = "Authorization, Content-Type, Accept, X-User-Email, X-Auth-Token"
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    200
+  end
+
+
+  get '/hello' do
+    "hello my brother"
+  end
+
+  # user sign in
+  patch "/login" do
+    user = User.find_by(name: params[:name], password: params[:password])
+    if !!user
+    { isRegistered: "#{!!user}", userId: user.id }.to_json
+    else
+      { isRegistered: "#{!!user}"}.to_json
+    end
+  end
+
+  # user sign up
+  post "/signup" do
+    is_signed_up = User.find_by(email: params[:email])
+    if is_signed_up
+      { isAlreadyRegistered: "#{!!is_signed_up}" }.to_json
+    else
+      user = User.create(name: params[:name], email: params[:email], password: params[:password])
+      user.to_json
+    end
+  end
+
+
+   # @method: Display all todos
+    get '/tasks' do
+        tasks = Task.all
+        tasks.to_json
+    end
+
+  # user create task
+  post "/tasks/create" do
+    task = Task.create(
+      name: params[:name],
+      description: params[:description],
+      due: params[:due],
+      status: params[:status],
+      user_id: params[:user_id]
+    )
     task.to_json
   end
-  get '/users' do 
-    user = User.all
-    user.to_json
-  end
-  get "/user/tasks/:id" do
-    task = User.find(params[:id]).tasks
+
+  # user updates task
+  patch "/tasks/update/:id" do
+    task = Task.find(params[:id])
+    task.update(status: params[:status])
     task.to_json
   end
-  get "/user/tasks/:id/:date" do
-    # task = User.find(params[:id]).tasks
-    task = Task.where(date: params[:date], user_id: params[:id]).to_json
-    # puts params[:date]
-    task.to_json
-  end
+
+  # user gets individual task
   get "/tasks/:id" do
     task = Task.find(params[:id])
     task.to_json
   end
-  get "/user/:id/tasks/:status" do
-  #   task = User.find(params[:id])
-    task = Task.where(status: params[:status], user_id: params[:id]).to_json
+
+  # user lists all their own tasks
+  patch "/tasks" do
+    task = Task.where(user_id: params[:user_id])
     task.to_json
   end
 
-  patch "/tasks/:id" do
+  # user delete specific tasks
+  delete "/tasks/:id" do
     task = Task.find(params[:id])
-    task.update(
-      status: params[:status]
-    )
+    task.destroy
     task.to_json
   end
-  post "/tasks" do
-    task = Task.create(
-      name: params[:name],
-      description: params[:description],
-      status: params[:status],
-      user_id: params[:user_id],
-      due_date: params[:due_date],
-      date: params[:date]
-    )
-    task.to_json
-  end
-  post '/login' do 
-    user = User.find_by(
-      email: params[:email],
-      password: params[:password]
-    )
-    user.to_json
-  end
-
-
 end
