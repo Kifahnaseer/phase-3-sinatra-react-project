@@ -7,8 +7,8 @@ require_relative "./config/environment"
   #allow do
    # origins '*'
    # resource '*', headers: :any, methods: [:get, :post, :delete, :put, :patch, :options, :head]
-  end
-end
+  #end
+#end
 
 # Parse JSON from the request body into the params hash
 use Rack::JSONBodyParser
